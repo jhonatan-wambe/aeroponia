@@ -4,7 +4,7 @@ from machine import Pin
 from time import sleep
 
 # Configuración Wi-Fi
-ssid = "TOKU"
+ssid = "********"
 password = "LAcomidamasdeliciosaesSOLLAconARROZYHUEVO_00"
 
 # Configuración del LED en el pin 2
