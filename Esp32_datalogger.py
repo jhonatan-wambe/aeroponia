@@ -1,53 +1,58 @@
 import network
-import urequests
+import time
+import urequests as requests
+import random
 from machine import Pin
-from time import sleep
 
-# Configuración Wi-Fi
-ssid = "********"
-password = "LAcomidamasdeliciosaesSOLLAconARROZYHUEVO_00"
+# Configuración de la red Wi-Fi
+ssid = "TU_SSID"
+password = "TU_PASSWORD"
 
 # Configuración del LED en el pin 2
 led = Pin(2, Pin.OUT)
 
-# Conectar a la red Wi-Fi
-station = network.WLAN(network.STA_IF)
-station.active(True)
-station.connect(ssid, password)
+# Conexión a Wi-Fi
+def conectar_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(ssid, password)
+    print("Conectando a la red Wi-Fi...")
+    
+    while not wlan.isconnected():
+        pass
 
-# Parpadeo del LED mientras se conecta
-print("Conectando a la red Wi-Fi...")
-while not station.isconnected():
-    led.on()
-    sleep(0.2)
-    led.off()
-    sleep(0.2)
+    print("Conexión exitosa")
+    print("IP:", wlan.ifconfig()[0])
+    
+    # Parpadeo del LED como confirmación
+    for _ in range(5):
+        led.on()
+        time.sleep(0.3)
+        led.off()
+        time.sleep(0.3)
 
-# Confirmación de conexión con parpadeo de 5 veces
-print("Conexión exitosa")
-for _ in range(5):
-    led.on()
-    sleep(0.2)
-    led.off()
-    sleep(0.2)
+conectar_wifi()
 
-# Imprimir la IP de la ESP32
-print(station.ifconfig())
+# URL del Google Apps Script
+url = "URL_DE_LA_APLICACION_WEB"
 
-# URL de tu Google Apps Script
-url = "https://script.google.com/macros/s/AKfycbztJIqwJjAGPGEj6bRbZ-xO_Pxa-6qKZMMxFORyDxGNYsGgeTodbNkRuCq6KaOeBBVsow/exec"
+# Bucle para enviar datos
+while True:
+    # Generación de datos simulados
+    temperatura = random.uniform(20, 30)  # Temperatura entre 20 y 30 °C
+    humedad = random.uniform(40, 60)      # Humedad entre 40 y 60 %
 
-# Datos de ejemplo para enviar (puedes adaptarlos según tus datos reales de sensores)
-temperatura = 25.4  # Aquí iría el dato de tu sensor
-humedad = 60.2      # Aquí iría el dato de tu sensor
+    # Construcción de la URL con los datos
+    url_con_datos = f"{url}?temp={temperatura}&hum={humedad}"
+    
+    # Envío de los datos
+    try:
+        print("Enviando datos:", temperatura, humedad)
+        respuesta = requests.get(url_con_datos)
+        print("Respuesta del servidor:", respuesta.text)
+    except Exception as e:
+        print("Error al enviar datos:", e)
+    
+    # Espera de 10 segundos
+    time.sleep(10)
 
-# Enviar datos
-try:
-    response = urequests.get(f"{url}?temperatura={temperatura}&humedad={humedad}")
-    print("Datos enviados")
-    print("Respuesta del servidor:", response.text)
-    response.close()
-except Exception as e:
-    print("Error al enviar los datos:", e)
-
-sleep(10)  # Espera de 10 segundos antes de volver a enviar los datos
